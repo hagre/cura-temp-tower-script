@@ -6,14 +6,14 @@ import re
 from ..Script import Script
 
 
-class TempTower(Script):
+class TempTowerMM(Script):
     def __init__(self):
         super().__init__()
 
     def getSettingDataString(self):
         return json.dumps({
-            'name': 'Temp Tower',
-            'key': 'TempTower',
+            'name': 'Temp Tower MM',
+            'key': 'TempTowerMM',
             'metadata': {},
             'version': 2,
             'settings': {
@@ -22,7 +22,7 @@ class TempTower(Script):
                     'description': 'Initial nozzle temperature',
                     'unit': '°C',
                     'type': 'int',
-                    'default_value': 265
+                    'default_value': 190
                 },
                 'height_increment': {
                     'label': 'Height Increment',
@@ -31,8 +31,8 @@ class TempTower(Script):
                         'changes by this much'
                     ),
                     'unit': 'mm',
-                    'type': 'int',
-                    'default_value': 10
+                    'type': 'float',
+                    'default_value': 10.0
                 },
                 'temperature_increment': {
                     'label': 'Temperature Increment',
@@ -42,7 +42,7 @@ class TempTower(Script):
                     ),
                     'unit': '°C',
                     'type': 'int',
-                    'default_value': -5
+                    'default_value': 5
                 },
                 'start_height': {
                     'label': 'Start Height ',
@@ -51,7 +51,7 @@ class TempTower(Script):
                     ),
                     'unit': 'mm',
                     'type': 'float',
-                    'default_value': 1.4
+                    'default_value': 1.1
                 }
             }
         })
@@ -62,11 +62,12 @@ class TempTower(Script):
         temp_inc = self.getSettingValueByKey('temperature_increment')
         start_height = self.getSettingValueByKey('start_height')
 
+        # X Y and Z can be a negativ value (on Delta Printers)
         cmd_re = re.compile(
             r'G[0-9]+ '
             r'(?:F[0-9]+ )?'
-            r'X[0-9]+\.?[0-9]* '
-            r'Y[0-9]+\.?[0-9]* '
+            r'X-?[0-9]+\.?[0-9]* '
+            r'Y-?[0-9]+\.?[0-9]* '
             r'Z(-?[0-9]+\.?[0-9]*)'
         )
 
@@ -85,16 +86,22 @@ class TempTower(Script):
                 if line.startswith(';') or not started:
                     continue
 
-                # Find any X,Y,Z Line (ex. G0 X60.989 Y60.989 Z1.77)
+                # Find any X,Y,Z Line (ex. G0 X60.989 Y-60.989 Z1.77)
                 match = cmd_re.match(line)
                 if match is None:
                     continue
                 z = float(match.groups()[0])
-				
+
                 if z < start_height:
+                    lines[j] += '\n;Z below minimum %f' % z
                     continue
-				
-                new_temp = start_temp + int((z - start_height) / height_inc) * temp_inc
+                elif z == start_height:
+                    lines[j] += '\n;Z is %f' % z
+                    new_temp = start_temp
+                elif z > start_height:
+                    lines[j] += '\n;Z reached %f' % z
+                    new_temp = start_temp + int((z - start_height) / height_inc) * temp_inc
+                    lines[j] += '\n;Calculated temp is %d' % new_temp
 
                 if new_temp != current_temp:
                     current_temp = new_temp
