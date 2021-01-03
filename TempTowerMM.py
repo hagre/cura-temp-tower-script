@@ -17,6 +17,13 @@ class TempTowerMM(Script):
             'metadata': {},
             'version': 2,
             'settings': {
+                'debug_output': {
+                    'label': 'Debug Output',
+                    'description': 'Set 1 for debug output enabled',
+                    'unit': '1 or 0',
+                    'type': 'int',
+                    'default_value': 0
+                },
                 'start_temperature': {
                     'label': 'Start Temperature',
                     'description': 'Initial nozzle temperature',
@@ -61,6 +68,7 @@ class TempTowerMM(Script):
         height_inc = self.getSettingValueByKey('height_increment')
         temp_inc = self.getSettingValueByKey('temperature_increment')
         start_height = self.getSettingValueByKey('start_height')
+        debug_output = self.getSettingValueByKey('debug_output')
 
         # X Y and Z can be a negativ value (on Delta Printers)
         cmd_re = re.compile(
@@ -93,15 +101,18 @@ class TempTowerMM(Script):
                 z = float(match.groups()[0])
 
                 if z < start_height:
-                    lines[j] += '\n;Z below minimum %f' % z
+                    if debug_output == 1:
+                        lines[j] += '\n;Z below minimum %f' % z
                     continue
                 elif z == start_height:
-                    lines[j] += '\n;Z is %f' % z
+                    if debug_output == 1:
+                        lines[j] += '\n;Z is %f' % z
                     new_temp = start_temp
                 elif z > start_height:
-                    lines[j] += '\n;Z reached %f' % z
                     new_temp = start_temp + int((z - start_height) / height_inc) * temp_inc
-                    lines[j] += '\n;Calculated temp is %d' % new_temp
+                    if debug_output == 1:
+                        lines[j] += '\n;Z reached %f' % z 
+                        lines[j] += '\n;Calculated temp is %d' % new_temp
 
                 if new_temp != current_temp:
                     current_temp = new_temp
