@@ -19,10 +19,9 @@ class TempTowerMM(Script):
             'settings': {
                 'debug_output': {
                     'label': 'Debug Output',
-                    'description': 'Set 1 for debug output enabled',
-                    'unit': '1 or 0',
-                    'type': 'int',
-                    'default_value': 0
+                    'description': 'Set true for debug output enabled',
+                    'type': 'bool',
+                    'default_value': False
                 },
                 'start_temperature': {
                     'label': 'Start Temperature',
@@ -101,16 +100,16 @@ class TempTowerMM(Script):
                 z = float(match.groups()[0])
 
                 if z < start_height:
-                    if debug_output == 1:
+                    if debug_output:
                         lines[j] += '\n;Z below minimum %f' % z
                     continue
                 elif z == start_height:
-                    if debug_output == 1:
+                    if debug_output:
                         lines[j] += '\n;Z is %f' % z
                     new_temp = start_temp
                 elif z > start_height:
                     new_temp = start_temp + int((z - start_height) / height_inc) * temp_inc
-                    if debug_output == 1:
+                    if debug_output:
                         lines[j] += '\n;Z reached %f' % z 
                         lines[j] += '\n;Calculated temp is %d' % new_temp
 

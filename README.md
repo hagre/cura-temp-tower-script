@@ -1,5 +1,7 @@
 # cura-temp-tower-script
 
+# Milimeter
+
 This script is based on the script written by Okke Formsma here https://github.com/okke-formsma/cura-temp-tower-script .
 
 I have modified the regex to find negative X and Y values for my Delata Printer.
@@ -9,7 +11,7 @@ Renamed the .py file to TempTowerMM.py (for the mm version)
 
 Copy TempTower.py into your cura directory like the following;
 
-C:\Program Files\Ultimaker Cura 4.8\plugins\PostProcessingPlugin\scripts
+C:\Program Files\Ultimaker Cura <version>\plugins\PostProcessingPlugin\scripts
 
 This script is based on some variations I found on Thingiverse.
 
@@ -36,3 +38,21 @@ I am using this https://www.thingiverse.com/thing:4149643 temp tower (PLA) with 
 * Height Increment 10.0 mm
 * Temperature Increment 5 °C
 * Debug 0
+
+
+
+
+
+# AND LAYER
+
+This additional script is inspired by the script https://github.com/Haruko/cura-temp-tower-script modified by Haruko (fork of the orginal script) and the already included script https://github.com/Ultimaker/Cura/blob/master/plugins/PostProcessingPlugin/scripts/DisplayFilenameAndLayerOnLCD.py .
+
+Renamed the .py file to TempTowerLayer.py (for the Layer version)
+
+Five settings are available;
+
+1. Start Layer
+2. Layer Increment
+3. Start Temperature
+4. Temperature Increment
+5. Debug Output
